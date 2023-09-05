@@ -89,7 +89,7 @@ function freak_quizzes_install() {
    // Define the language code and name for Spanish.
   $language_code = 'es';
   $language_name = 'Spanish';
-  $language_exists = \Drupal::languageManager()->getLanguageConfigOverride($language_code);
+  $language_exists = \Drupal::languageManager()->getLanguageConfigOverride($language_code, $language_name);
   // If the language doesn't exist, create it.
   if (!$language_exists) {
     // Create a new language entity.
