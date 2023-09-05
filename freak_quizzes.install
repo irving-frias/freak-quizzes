@@ -95,4 +95,32 @@ function freak_quizzes_uninstall() {
     // Delete the taxonomy vocabulary configuration.
     Vocabulary::load($vocabulary_machine_name)->delete();
   }
+
+  $field_name = 'field_quizzes_answered'; // Replace with the field name you want to delete.
+  $field_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('user', $field_name);
+  if ($field_storage) {
+    // Delete the field storage (the actual database table).
+    $field_storage->delete();
+  }
+
+  // Check if the field configuration exists.
+  $field_config = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', $field_name);
+  if ($field_config) {
+    // Delete the field configuration.
+    $field_config->delete();
+  }
+
+  $field_name = 'field_quizzes_score'; // Replace with the field name you want to delete.
+  $field_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('user', $field_name);
+  if ($field_storage) {
+    // Delete the field storage (the actual database table).
+    $field_storage->delete();
+  }
+
+  // Check if the field configuration exists.
+  $field_config = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', $field_name);
+  if ($field_config) {
+    // Delete the field configuration.
+    $field_config->delete();
+  }
 }
