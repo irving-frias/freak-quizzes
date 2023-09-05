@@ -6,6 +6,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\language\Entity\ConfigurableLanguage;
 
 /**
  * @file
@@ -110,6 +111,34 @@ function freak_quizzes_install() {
      'type' => 'number_integer',
      'weight' => 0,
    ])->save();
+
+   // Define the language code and name for Spanish.
+  $language_code = 'es';
+  $language_name = 'Spanish';
+  $language_exists = \Drupal::languageManager()->getLanguageConfigOverride($language_code);
+  // If the language doesn't exist, create it.
+  if (!$language_exists) {
+    // Create a new language entity.
+    $language = ConfigurableLanguage::create([
+      'id' => $language_code,
+      'label' => $language_name,
+      'weight' => 0, // You can set the weight as needed.
+      'locked' => FALSE, // Set to TRUE if you want to prevent changes to this language.
+    ]);
+
+    // Save the language entity.
+    $language->save();
+
+    // Clear the language cache.
+    \Drupal::languageManager()->reset();
+
+    // Inform the user that the language has been created.
+    \Drupal::messenger()->addStatus(t('The Spanish language has been created.'));
+  }
+  else {
+    // The language already exists, so you can handle this case as needed.
+    \Drupal::messenger()->addError(t('The Spanish language already exists.'));
+  }
 
    freak_quizzes_import_questions();
 }
