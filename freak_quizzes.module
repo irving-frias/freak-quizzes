@@ -4,6 +4,9 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @file
@@ -153,5 +156,36 @@ function freak_quizzes_import_questions() {
 
   foreach ($questions as $key => $question_item) {
     create_or_update_question($question_item);
+  }
+}
+
+/**
+ * Create a new language programmatically.
+ */
+function create_spanish_language() {
+  // Get the language manager service.
+  $language_manager = \Drupal::service('language_manager');
+
+  // Define the language code and name for Spanish.
+  $language_code = 'es';
+  $language_name = 'Spanish';
+
+  // Check if the language already exists.
+  if (!$language_manager->isLanguageConfigurable($language_code)) {
+    // Create a new language.
+    $language = $language_manager->createLanguage([
+      'id' => $language_code,
+      'name' => $language_name,
+    ]);
+
+    // Save the new language.
+    $language_manager->saveLanguage($language);
+
+    // Inform the user that the language has been created.
+    \Drupal::messenger()->addStatus(t('The Spanish language has been created.'));
+  }
+  else {
+    // The language already exists, so you can handle this case as needed.
+    \Drupal::messenger()->addError(t('The Spanish language already exists.'));
   }
 }
