@@ -4,6 +4,7 @@ namespace Drupal\freak_quizzes\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Provides a Freak Quizzes form.
@@ -29,6 +30,20 @@ final class StartQuizForm extends FormBase {
       '#markup' => $this->t('<h2>Hello @name, wellcome to Freak Quizzes.  </h2>', [
         '@name' => $user_name,
         '@email' => $user_email,
+      ]),
+    ];
+
+    $uids = \Drupal::entityQuery('user')
+      ->accessCheck(FALSE)
+      ->condition('name', $current_user->getAccountName(), 'IN')
+      ->execute();
+
+    $users = User::loadMultiple($uids);
+    $user = array_shift($users);
+    $currentScore = (int)implode('', array_map(function ($score) { return $score['value']; }, $user->field_quizzes_score->getValue())) ?? 0;
+    $form['user_score'] = [
+      '#markup' => $this->t('<h3>Current score: @score</h3>', [
+        '@score' => $currentScore,
       ]),
     ];
 

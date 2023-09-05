@@ -44,6 +44,15 @@ final class QuizForm extends FormBase {
 
     $nids = $nids->execute();
 
+    if (empty($nids)) {
+      $form['questions'] = [
+        '#type' => 'container',
+        '#markup' => '<h2>No more quizzes available, thank you!</h2>',
+      ];
+
+      return $form;
+    }
+
     $nodes = Node::loadMultiple($nids);
 
     $form['questions'] = [
@@ -76,7 +85,7 @@ final class QuizForm extends FormBase {
       $form['questions']['question_' . $node->id()]['answers']['correct_' . $node->id()] = [
         '#type' => 'radios',
         '#options' => $answers,
-        '#required' => TRUE,
+        '#required' => FALSE,
         '#name' => $radio_name, // Unique name for this set of radio buttons.
       ];
     }
@@ -126,6 +135,7 @@ final class QuizForm extends FormBase {
     $user = array_shift($users);
     $QuizzesAnswered = array_map(function ($quiz) { return $quiz['target_id']; }, $user->field_quizzes_answered->getValue()) ?? [];
     $QuizzesAnsweredCorrectly = [];
+    $countAnswerCorrects = 0;
 
     $nids = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
@@ -147,7 +157,7 @@ final class QuizForm extends FormBase {
         $question_id = str_replace('correct_', '', $element_name);
 
         // Use the question ID to retrieve the label associated with the selected value.
-        $label = $form['questions']['question_' . $question_id]['answers']['correct_' . $question_id]['#options'][$selected_value];
+        $label = $form['questions']['question_' . $question_id]['answers']['correct_' . $question_id]['#options'][$selected_value] ?? '';
         $correctAnswer = array_map(function ($answer) {
           return $answer['value'];
         }, $nodes[$question_id]->field_freak_quizzes_true_a->getValue());
@@ -155,12 +165,16 @@ final class QuizForm extends FormBase {
 
         if ($correctAnswer == $label) {
           $pointsTotal += $pointsPerAnswer;
-          $QuizzesAnsweredCorrectly[] = $nodes[$question_id]->id();
+          $countAnswerCorrects++;
         }
+
+        $QuizzesAnsweredCorrectly[] = $nodes[$question_id]->id();
       }
     }
 
 
+    $existing_answers = array_map(function ($score) { return $score['target_id']; }, $user->field_quizzes_answered->getValue()) ?? [];
+    $QuizzesAnsweredCorrectly = array_merge($existing_answers, $QuizzesAnsweredCorrectly);
     $user->field_quizzes_answered->setValue($QuizzesAnsweredCorrectly);
     $currentScore = $user->field_quizzes_score->getValue() ?? 0;
     $currentScore = (int)implode('', array_map(function ($score) { return $score['value']; }, $user->field_quizzes_score->getValue())) ?? 0;
@@ -168,7 +182,8 @@ final class QuizForm extends FormBase {
     $user->field_quizzes_score->setValue($currentScore);
     $user->save();
 
-    $this->messenger()->addStatus($this->t('The message has been sent.'));
+    $this->messenger()->addStatus($this->t('You answered @count questions correctly', ['@count' => $countAnswerCorrects]));
+    $this->messenger()->addStatus($this->t('You won @points points', ['@points' => $pointsTotal]));
     $form_state->setRedirect('freak_quizzes.start_quiz');
   }
 
