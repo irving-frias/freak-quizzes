@@ -110,6 +110,8 @@ function freak_quizzes_install() {
      'type' => 'number_integer',
      'weight' => 0,
    ])->save();
+
+   freak_quizzes_import_questions();
 }
 
 function freak_quizzes_uninstall() {
