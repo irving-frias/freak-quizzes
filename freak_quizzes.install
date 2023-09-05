@@ -74,9 +74,9 @@ function freak_quizzes_uninstall() {
   $entity_type_manager = \Drupal::service('entity_type.manager');
 
   // Check if the content type exists.
-  if ($entity_type_manager->getStorage('node')->load($content_type_id)) {
+  if ($entity_type_manager->getStorage('node_type')->load($content_type_id)) {
     // Delete the content type configuration.
-    $entity_type_manager->getStorage('node')->delete([$content_type_id]);
+    $entity_type_manager->getStorage('node_type')->delete([$content_type_id]);
   }
 
   // Replace 'your_vocabulary_name' with the machine name of the taxonomy vocabulary you want to delete.
