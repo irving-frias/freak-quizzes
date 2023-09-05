@@ -5,3 +5,6 @@ package: Future Freak
 core_version_requirement: ^10
 dependencies:
   - ultimate_cron:ultimate_cron
+  - config_translation:config_translation
+  - content_translation:content_translation
+  - locale:locale
