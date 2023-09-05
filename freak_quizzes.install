@@ -1,10 +1,11 @@
 <?php
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\node\Entity\NodeType;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
 /**
  * @file
@@ -61,6 +62,19 @@ function freak_quizzes_install() {
 
   // Create the field instance.
   FieldConfig::create($field_instance)->save();
+  // Get the form display and enable the field.
+  $user_form_display = EntityFormDisplay::load('user.user.default');
+  $user_form_display->setComponent($field_name, [
+    'type' => 'entity_reference_autocomplete',
+    'weight' => 0,
+  ])->save();
+
+  // Get the view display and enable the field (optional).
+  $user_view_display = EntityViewDisplay::load('user.user.default');
+  $user_view_display->setComponent($field_name, [
+    'type' => 'entity_reference_label',
+    'weight' => 0,
+  ])->save();
 
   // Create a number field.
   $field_name = 'field_quizzes_score';
@@ -83,6 +97,19 @@ function freak_quizzes_install() {
 
   // Create the field instance.
   FieldConfig::create($field_instance)->save();
+   // Get the form display and enable the field.
+   $user_form_display = EntityFormDisplay::load('user.user.default');
+   $user_form_display->setComponent($field_name, [
+     'type' => 'number',
+     'weight' => 0,
+   ])->save();
+
+   // Get the view display and enable the field (optional).
+   $user_view_display = EntityViewDisplay::load('user.user.default');
+   $user_view_display->setComponent($field_name, [
+     'type' => 'number_integer',
+     'weight' => 0,
+   ])->save();
 }
 
 function freak_quizzes_uninstall() {
