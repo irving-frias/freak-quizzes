@@ -64,18 +64,20 @@ function freak_quizzes_install() {
   // Create the field instance.
   FieldConfig::create($field_instance)->save();
   // Get the form display and enable the field.
-  $user_form_display = EntityFormDisplay::load('user.user.default');
-  $user_form_display->setComponent($field_name, [
-    'type' => 'entity_reference_autocomplete',
-    'weight' => 0,
-  ])->save();
+  if (in_array('setComponent', get_class_methods(EntityFormDisplay::load('user.user.default')))) {
+    $user_form_display = EntityFormDisplay::load('user.user.default');
+    $user_form_display->setComponent($field_name, [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 0,
+    ])->save();
 
-  // Get the view display and enable the field (optional).
-  $user_view_display = EntityViewDisplay::load('user.user.default');
-  $user_view_display->setComponent($field_name, [
-    'type' => 'entity_reference_label',
-    'weight' => 0,
-  ])->save();
+    // Get the view display and enable the field (optional).
+    $user_view_display = EntityViewDisplay::load('user.user.default');
+    $user_view_display->setComponent($field_name, [
+      'type' => 'entity_reference_label',
+      'weight' => 0,
+    ])->save();
+  }
 
   // Create a number field.
   $field_name = 'field_quizzes_score';
