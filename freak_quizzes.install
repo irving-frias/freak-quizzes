@@ -4,7 +4,82 @@
  * @file
  * Install, update and uninstall functions for the Freak Quizzes module.
  */
-function freak_quizzes_update_8001() {
+function freak_quizzes_install() {
   // Load and import the configuration.
   \Drupal::configFactory()->getEditable('node.type.freak_quizzes_question')->save();
+
+  $role_name = 'player';
+  $permissions = [
+    'access content', // Example permission; customize this list as needed.
+    'view own unpublished content',
+    // Add more permissions as needed.
+  ];
+
+  // Check if the role already exists.
+  if (!\Drupal\user\Entity\Role::load($role_name)) {
+    // Create the role.
+    $role = \Drupal\user\Entity\Role::create([
+      'id' => $role_name,
+      'label' => $role_name,
+    ]);
+    $role->save();
+
+    // Assign permissions to the role.
+    user_role_grant_permissions($role_name, $permissions);
+  }
+
+  $field_name = 'field_quizzes_answered';
+  $field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
+    'field_name' => $field_name,
+    'entity_type' => 'node', // Replace with the desired entity type.
+    'type' => 'entity_reference',
+    'settings' => [
+      'target_type' => 'user', // Replace with the target entity type (e.g., 'node' or 'user').
+    ],
+  ]);
+  $field_storage->save();
+
+  $field_instance = \Drupal\field\Entity\FieldConfig::create([
+    'field_storage' => $field_storage,
+    'bundle' => 'freak_quizzes_question', // Replace with the desired content type.
+    'label' => 'Quizzes Answered',
+    'required' => FALSE, // Adjust as needed.
+  ]);
+  $field_instance->save();
+
+  // Create a number field.
+  $number_field_name = 'field_quizzes_score';
+  $number_field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
+    'field_name' => $number_field_name,
+    'entity_type' => 'user', // Replace with the desired entity type (e.g., 'user' for user fields).
+    'type' => 'integer',
+  ]);
+  $number_field_storage->save();
+
+  $number_field_instance = \Drupal\field\Entity\FieldConfig::create([
+    'field_storage' => $number_field_storage,
+    'bundle' => 'freak_quizzes_question', // Replace with the desired content type (e.g., 'article').
+    'label' => 'Quizzes Score',
+  ]);
+  $number_field_instance->save();
+}
+
+function freak_quizzes_uninstall() {
+  // Replace 'your_content_type' with the machine name of the content type you want to delete.
+  $content_type_machine_name = 'freak_quizzes_question';
+
+  // Delete the content type and its associated data.
+  node_type_delete($content_type_machine_name);
+
+  // Replace 'your_vocabulary_name' with the machine name of the taxonomy vocabulary you want to delete.
+  $vocabulary_machine_name = 'freak_quizzes_category';
+
+  // Delete the taxonomy vocabulary and its associated terms.
+  taxonomy_vocabulary_delete($vocabulary_machine_name);
+
+  // Replace 'your_vocabulary_name' with the machine name of the taxonomy vocabulary you want to delete.
+  $vocabulary_machine_name = 'freak_quizzes_tags';
+
+  // Delete the taxonomy vocabulary and its associated terms.
+  taxonomy_vocabulary_delete($vocabulary_machine_name);
 }
