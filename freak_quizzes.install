@@ -3,6 +3,8 @@
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 
 /**
  * @file
@@ -33,39 +35,47 @@ function freak_quizzes_install() {
   }
 
   $field_name = 'field_quizzes_answered';
-  $field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
+  $field_storage = [
     'field_name' => $field_name,
-    'entity_type' => 'node', // Replace with the desired entity type.
+    'entity_type' => 'user',
     'type' => 'entity_reference',
-    'settings' => [
-      'target_type' => 'user', // Replace with the target entity type (e.g., 'node' or 'user').
-    ],
-  ]);
-  $field_storage->save();
+  ];
 
-  $field_instance = \Drupal\field\Entity\FieldConfig::create([
-    'field_storage' => $field_storage,
-    'bundle' => 'freak_quizzes_question', // Replace with the desired content type.
+  // Create the field storage.
+  FieldStorageConfig::create($field_storage)->save();
+
+  // Define the field instance configuration.
+  $field_instance = [
+    'field_name' => $field_name,
+    'entity_type' => 'user',
+    'bundle' => 'user',
     'label' => 'Quizzes Answered',
-    'required' => FALSE, // Adjust as needed.
-  ]);
-  $field_instance->save();
+  ];
+
+  // Create the field instance.
+  FieldConfig::create($field_instance)->save();
 
   // Create a number field.
-  $number_field_name = 'field_quizzes_score';
-  $number_field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
-    'field_name' => $number_field_name,
-    'entity_type' => 'user', // Replace with the desired entity type (e.g., 'user' for user fields).
+  $field_name = 'field_quizzes_score';
+  $field_storage = [
+    'field_name' => $field_name,
+    'entity_type' => 'user',
     'type' => 'integer',
-  ]);
-  $number_field_storage->save();
+  ];
 
-  $number_field_instance = \Drupal\field\Entity\FieldConfig::create([
-    'field_storage' => $number_field_storage,
-    'bundle' => 'freak_quizzes_question', // Replace with the desired content type (e.g., 'article').
+  // Create the field storage.
+  FieldStorageConfig::create($field_storage)->save();
+
+  // Define the field instance configuration.
+  $field_instance = [
+    'field_name' => $field_name,
+    'entity_type' => 'user',
+    'bundle' => 'user',
     'label' => 'Quizzes Score',
-  ]);
-  $number_field_instance->save();
+  ];
+
+  // Create the field instance.
+  FieldConfig::create($field_instance)->save();
 }
 
 function freak_quizzes_uninstall() {
@@ -97,28 +107,28 @@ function freak_quizzes_uninstall() {
   }
 
   $field_name = 'field_quizzes_answered'; // Replace with the field name you want to delete.
-  $field_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('user', $field_name);
+  $field_storage = FieldStorageConfig::loadByName('user', $field_name);
   if ($field_storage) {
     // Delete the field storage (the actual database table).
     $field_storage->delete();
   }
 
   // Check if the field configuration exists.
-  $field_config = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', $field_name);
+  $field_config = FieldConfig::loadByName('user', 'user', $field_name);
   if ($field_config) {
     // Delete the field configuration.
     $field_config->delete();
   }
 
   $field_name = 'field_quizzes_score'; // Replace with the field name you want to delete.
-  $field_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('user', $field_name);
+  $field_storage = FieldStorageConfig::loadByName('user', $field_name);
   if ($field_storage) {
     // Delete the field storage (the actual database table).
     $field_storage->delete();
   }
 
   // Check if the field configuration exists.
-  $field_config = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', $field_name);
+  $field_config = FieldConfig::loadByName('user', 'user', $field_name);
   if ($field_config) {
     // Delete the field configuration.
     $field_config->delete();
