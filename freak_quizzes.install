@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\taxonomy\Entity\Vocabulary;
+
 /**
  * @file
  * Install, update and uninstall functions for the Freak Quizzes module.
@@ -65,21 +68,30 @@ function freak_quizzes_install() {
 }
 
 function freak_quizzes_uninstall() {
-  // Replace 'your_content_type' with the machine name of the content type you want to delete.
-  $content_type_machine_name = 'freak_quizzes_question';
+  $content_type_id = 'freak_quizzes_question'; // Replace with your content type's machine name.
 
-  // Delete the content type and its associated data.
-  node_type_delete($content_type_machine_name);
+  // Load the entity type manager service.
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+
+  // Check if the content type exists.
+  if ($entity_type_manager->getStorage('node_type')->load($content_type_id)) {
+    // Delete the content type configuration.
+    $entity_type_manager->getStorage('node_type')->delete([$content_type_id]);
+  }
 
   // Replace 'your_vocabulary_name' with the machine name of the taxonomy vocabulary you want to delete.
   $vocabulary_machine_name = 'freak_quizzes_category';
-
-  // Delete the taxonomy vocabulary and its associated terms.
-  taxonomy_vocabulary_delete($vocabulary_machine_name);
+  if (Vocabulary::load($vocabulary_machine_name)) {
+    // Delete the taxonomy vocabulary configuration.
+    Vocabulary::load($vocabulary_machine_name)->delete();
+  }
 
   // Replace 'your_vocabulary_name' with the machine name of the taxonomy vocabulary you want to delete.
   $vocabulary_machine_name = 'freak_quizzes_tags';
 
   // Delete the taxonomy vocabulary and its associated terms.
-  taxonomy_vocabulary_delete($vocabulary_machine_name);
+  if (Vocabulary::load($vocabulary_machine_name)) {
+    // Delete the taxonomy vocabulary configuration.
+    Vocabulary::load($vocabulary_machine_name)->delete();
+  }
 }
